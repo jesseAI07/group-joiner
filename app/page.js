@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
+import Confetti from "./Confetti";
 
 async function post(url, body) {
   const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -28,7 +30,7 @@ export default function Home() {
   const lookup = (e) => { e.preventDefault(); run(async () => {
     const { matches } = await post("/api/lookup", { name });
     const open = matches.filter((m) => !m.registered);
-    if (!open.length) throw new Error("This student is already registered. Contact your course rep if this is a mistake.");
+    if (!open.length) throw new Error("Chale you're already registered. Contact your course rep if this is a mistake.");
     setMatches(open);
     if (open.length === 1) { setRow(open[0].row); setStep("details"); } else setStep("pick");
   }); };
@@ -36,7 +38,7 @@ export default function Home() {
   const submit = (e) => { e.preventDefault(); run(async () => {
     const { link } = await post("/api/submit", { name, row, studentId, group });
     setLink(link); setStep("done");
-    setTimeout(() => { window.location.href = link; }, 1500);
+    setTimeout(() => { window.location.href = link; }, 3500);
   }); };
 
   return (
@@ -81,10 +83,16 @@ export default function Home() {
 
       {step === "done" && (
         <div className="done">
+          <Confetti />
           <strong>You're registered. Opening WhatsApp…</strong>
           <a href={link}>Open my group</a>
         </div>
       )}
+
+      <nav className="links">
+        <Link href="/walk-in">My name isn't on the list</Link>
+        <Link href="/edit">Fix a mistake (wrong ID or group)</Link>
+      </nav>
     </main>
   );
 }
